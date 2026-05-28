@@ -1,0 +1,11 @@
+# Windows batch/config files must use CRLF — cmd.exe stops parsing at LF-only files
+*.cmd     text eol=crlf
+*.bat     text eol=crlf
+*.ini     text eol=crlf
+
+# iPXE scripts and all other source use LF
+*.ipxe    text eol=lf
+*.c       text eol=lf
+*.h       text eol=lf
+*.pl      text eol=lf
+Makefile  text eol=lf

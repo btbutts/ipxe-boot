@@ -1,0 +1,78 @@
+#!ipxe
+
+echo ========================================
+echo iPXE Debug Menu - LVR Gaming PC
+echo ========================================
+
+dhcp
+
+echo === DHCP Option Test Results ===
+echo ========================================
+
+# Option 178 - String
+echo Option 178 (String): ${178:string}
+echo Option 178 (Hex)   : ${178:hex}
+
+echo -- --------------------------------
+
+# Option 179 - Hex String
+echo Option 179 (String): ${179:string}
+echo Option 179 (Hex)   : ${179:hex}
+
+echo -- --------------------------------
+
+# Option 180 - Domain Name
+echo Option 180 (String): ${180:string}
+echo Option 180 (Hex)   : ${180:hex}
+
+echo -- --------------------------------
+
+# Option 181 - Port (String)
+echo Option 181 (String): ${181:string}
+echo Option 181 (Hex)   : ${181:hex}
+
+echo ========================================
+
+echo Script is running. Press any key to continue...
+prompt
+
+
+:menu
+menu iPXE Boot Menu
+item --gap -- ------------------------------
+item install   1. Boot Windows 11 Installer
+item direct    2. Direct Boot Installed Windows
+item shell     3. iPXE Shell
+item --gap -- ------------------------------
+item reboot    R. Reboot
+choose --default install --timeout 30000 option
+echo choose returned: ${option}
+prompt
+goto ${option}
+
+
+:install
+chain https://qnap01-mgmt.homeenterprises.us:4431/install.ipxe || shell
+goto menu
+
+:direct
+sanboot iscsi:${net0/ip}:::0:iqn.2004-04.us.homeenterprises:qnapts-864eu:win-lvrgamingpc || shell
+goto menu
+
+:shell
+shell
+goto menu
+
+:reboot
+reboot
+
+:cancelled
+echo Reached cancelled label
+prompt
+exit
+
+echo End of Script!
+prompt
+
+exit
+

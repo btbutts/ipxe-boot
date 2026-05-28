@@ -1,0 +1,49 @@
+#!ipxe
+
+dhcp
+
+set qnap-base ${178:string}
+
+echo ========================================
+echo Loading Windows 11 (WinPE) Installer...
+echo Using server: ${next-server}
+echo ========================================
+echo
+
+# ===== iSCSI Settings =====
+set initiator-iqn iqn.2010-04.org.ipxe:${net0/mac:hexhyp}-lvrgamingpc
+# == iSCSI Authentication ==
+set username <REPLACE_WITH_CHAP_USERNAME>
+set password <REPLACE_WITH_CHAP_PASSWORD>
+
+# Mutual CHAP (Reverse CHAP)
+set reverse-username <REPLACE_WITH_MUTUAL_CHAP_USERNAME>
+set reverse-password <REPLACE_WITH_MUTUAL_CHAP_PASSWORD>
+# ==========================
+
+echo Initiator IQN: ${initiator-iqn}
+echo Connecting to iSCSI target ${next-server}...
+echo ============================================
+echo 
+
+# Hook iSCSI LUN
+sanhook iscsi:${next-server}:::0:iqn.2004-04.us.homeenterprises:qnapts-864eu:win-lvrgamingpc || goto error
+
+echo iSCSI LUN hooked successfully. Booting WinPE...
+
+# Load WinPE
+kernel ${qnap-base}/wimboot
+initrd ${qnap-base}/win11-install/boot/bcd BCD
+initrd ${qnap-base}/win11-install/boot/boot.sdi boot.sdi
+# initrd ${qnap-base}/System32-Scripts/winpeshl.ini winpeshl.ini
+# initrd ${qnap-base}/System32-Scripts/presetup.cmd presetup.cmd
+initrd ${qnap-base}/System32-Scripts/iscsi-creds.cmd iscsi-creds.cmd
+initrd ${qnap-base}/System32-Scripts/iscsi-connect.cmd iscsi-connect.cmd
+initrd ${qnap-base}/win11-install/sources/boot.wim boot.wim
+
+boot
+
+:error
+echo Error: iSCSI hook failed! (Code: ${errno})
+echo Dropping to iPXE shell for troubleshooting...
+shell

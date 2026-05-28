@@ -1,0 +1,6 @@
+# Build logs
+log/
+
+# Vim swap files
+*.swp
+*.swo

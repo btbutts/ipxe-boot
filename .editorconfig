@@ -1,0 +1,10 @@
+root = true
+
+[*.{cmd,bat,ini}]
+end_of_line = crlf
+
+[*.{ipxe,c,h,pl}]
+end_of_line = lf
+
+[Makefile]
+end_of_line = lf

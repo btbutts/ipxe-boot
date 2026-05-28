@@ -1,0 +1,59 @@
+#!ipxe
+
+echo ========================================
+echo iPXE Boot Menu - LVR Gaming PC
+echo ========================================
+
+dhcp
+set syslog 10.1.10.101
+
+set qnap-base ${178:string}
+
+:menu
+menu iPXE Boot Menu - LVR Gaming PC
+item --gap -- ------------------------------
+item direct    1. Network Boot Windows 11
+item install   2. Boot Windows 11 Installer
+item shell     3. iPXE Shell (Debug)
+item --gap -- ------------------------------
+item reboot    R. Reboot System
+choose --default direct --timeout 30000 option || goto cancelled
+
+goto ${option}
+
+:direct
+echo Booting Installed Windows 11 from iSCSI...
+sanboot iscsi:${net0/ip}:::0:iqn.2004-04.us.homeenterprises:qnapts-864eu:win-lvrgamingpc || shell
+goto menu
+
+:install
+echo ========================================
+echo Starting Windows 11 Installer...
+echo Using base URL: ${qnap-base}
+echo Downloading install.ipxe from ${qnap-base}/install.ipxe
+echo ========================================
+echo
+echo Press any key to CANCEL installation...
+prompt --timeout 3000 || goto do_install
+
+echo
+echo Installation cancelled by the user!
+goto menu
+
+:do_install
+echo
+echo Launching Windows 11 Installer...
+chain ${qnap-base}/install.ipxe || shell
+goto menu
+
+:shell
+shell
+goto menu
+
+:reboot
+reboot
+
+:cancelled
+echo Menu cancelled.
+exit
+
