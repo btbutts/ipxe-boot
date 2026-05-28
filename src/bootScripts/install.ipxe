@@ -12,13 +12,7 @@ echo
 
 # ===== iSCSI Settings =====
 set initiator-iqn iqn.2010-04.org.ipxe:${net0/mac:hexhyp}-lvrgamingpc
-# == iSCSI Authentication ==
-set username <REPLACE_WITH_CHAP_USERNAME>
-set password <REPLACE_WITH_CHAP_PASSWORD>
-
-# Mutual CHAP (Reverse CHAP)
-set reverse-username <REPLACE_WITH_MUTUAL_CHAP_USERNAME>
-set reverse-password <REPLACE_WITH_MUTUAL_CHAP_PASSWORD>
+# Credentials set by iscsiChapCredential.ipxe before this script is chained to
 # ==========================
 
 echo Initiator IQN: ${initiator-iqn}

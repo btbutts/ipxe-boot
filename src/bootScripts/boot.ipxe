@@ -17,13 +17,13 @@ item install   2. Boot Windows 11 Installer
 item shell     3. iPXE Shell (Debug)
 item --gap -- ------------------------------
 item reboot    R. Reboot System
-choose --default direct --timeout 30000 option || goto cancelled
+choose --default direct --timeout 30000 bootOption || goto cancelled
 
-goto ${option}
+goto ${bootOption}
 
 :direct
 echo Booting Installed Windows 11 from iSCSI...
-sanboot iscsi:${net0/ip}:::0:iqn.2004-04.us.homeenterprises:qnapts-864eu:win-lvrgamingpc || shell
+chain ${qnap-base}/iscsiChapCredential.ipxe || shell
 goto menu
 
 :install
@@ -43,7 +43,7 @@ goto menu
 :do_install
 echo
 echo Launching Windows 11 Installer...
-chain ${qnap-base}/install.ipxe || shell
+chain ${qnap-base}/iscsiChapCredential.ipxe || shell
 goto menu
 
 :shell
