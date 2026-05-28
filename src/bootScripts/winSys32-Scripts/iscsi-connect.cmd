@@ -1,5 +1,5 @@
 @echo off
-setlocal
+setlocal enabledelayedexpansion
 
 set _D=%date%
 set _D=%_D: =0%
@@ -27,19 +27,19 @@ set /a retries=0
 ping -n 1 %ISCSI_PORTAL% >nul 2>&1
 if errorlevel 1 (
     set /a retries+=1
-    if %retries% geq 60 (
+    if !retries! geq 60 (
         echo   ERROR: Target portal unreachable after 120s. Aborting iSCSI setup.
-        echo [iscsi] ERROR: Portal unreachable after 60 attempts (120s). Aborting. >> %ISCSILOG%
+        echo [iscsi] ERROR: Portal unreachable after 60 attempts ^(120s^). Aborting. >> %ISCSILOG%
         echo [iscsi] %date% %time% - Exiting with code 1 >> %ISCSILOG%
         exit /b 1
     )
-    echo   ..Target Portal not reachable yet ^(attempt %retries%/60^). Retrying in 2 seconds...
-    echo [iscsi] Portal not reachable, attempt %retries%/60 >> %ISCSILOG%
-    timeout /t 2 /nobreak >nul
+    echo   ..Target Portal not reachable yet ^(attempt !retries!/60^). Retrying in 2 seconds...
+    echo [iscsi] Portal not reachable, attempt !retries!/60 >> %ISCSILOG%
+    ping -n 3 127.0.0.1 >nul 2>&1
     goto NetworkWait
 )
-echo   Network link verified! Target portal is reachable after %retries% attempt(s).
-echo [iscsi] Portal reachable after %retries% attempt(s). >> %ISCSILOG%
+echo   Network link verified! Target portal is reachable after !retries! attempt(s).
+echo [iscsi] Portal reachable after !retries! attempt(s). >> %ISCSILOG%
 echo.
 
 echo [2/5] Applying WinPE iSCSI Registry Workaround and Starting Service...
@@ -97,7 +97,7 @@ echo.
 
 echo [5/5] Waiting for LUN disk to enumerate...
 echo [iscsi] Step 5: Waiting 8s for disk enumeration... >> %ISCSILOG%
-timeout /t 8 /nobreak
+ping -n 10 127.0.0.1 >nul 2>&1
 
 echo.
 

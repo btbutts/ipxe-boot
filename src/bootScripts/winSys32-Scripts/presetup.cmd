@@ -3,9 +3,8 @@
 REM ============================================================
 REM  presetup.cmd
 REM  Called by winpeshl.exe (via winpeshl.ini) before setup.exe.
-REM  winpeshl.exe has already called wpeinit.exe by this point,
-REM  so PnP and driver init are done. We just need iSCSI up
-REM  before handing off to the Windows installer.
+REM  startnet.cmd calls wpeinit explicitly — with a custom
+REM  winpeshl.ini, winpeshl.exe does NOT call wpeinit automatically.
 REM ============================================================
 
 set _D=%date%

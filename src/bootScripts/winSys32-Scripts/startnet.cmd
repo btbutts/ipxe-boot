@@ -19,6 +19,14 @@ set NETLOG=%SYSTEMDRIVE%\startnet_%_D%.log
 
 echo [startnet] %date% %time% - Starting >> %NETLOG%
 
+REM ── Step 0: Initialize WinPE ────────────────────────────────────
+REM  With a custom winpeshl.ini, winpeshl.exe does NOT call wpeinit
+REM  automatically — it must be called explicitly. Without this,
+REM  there is no PnP init, no NIC driver binding, and no DHCP.
+echo [startnet] Calling wpeinit (PnP + DHCP)... >> %NETLOG%
+wpeinit
+echo [startnet] wpeinit done (exit code: %errorlevel%) >> %NETLOG%
+
 REM Ensure System32 is first in PATH so all commands are found
 SET PATH=%SYSTEMDRIVE%\Windows\System32;%PATH%;%SYSTEMDRIVE%\Windows\System32\OpenSSH
 
