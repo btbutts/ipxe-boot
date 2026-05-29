@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2025 Michael Brown <mbrown@fensystems.co.uk>.
+ * Copyright (C) 2026 Michael Brown <mbrown@fensystems.co.uk>.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -22,7 +22,7 @@
  */
 
 	FILE_LICENCE ( GPL2_OR_LATER_OR_UBDL )
-	FILE_SECBOOT ( PERMITTED );
+	FILE_SECBOOT ( PERMITTED )
 
 /** @file
  *
@@ -52,78 +52,76 @@ tcpip_continue_chksum:
 
 	/* Set up register usage:
 	 *
-	 * a0: checksum low xlen bits
+	 * a0: checksum low 64 bits
 	 * a1: data pointer
 	 * a2: end of data pointer
 	 * a3: end of data pointer minus a constant offset of interest
 	 * a4: checksum high bits (guaranteed to never carry)
 	 * a5: temporary register
 	 */
-	not	a0, a0
-	add	a2, a2, a1
-	addi	a3, a2, -( __riscv_xlen / 8 )
-	mv	a4, zero
+	nor	$a0, $a0, $zero
+	add.d	$a2, $a2, $a1
+	addi.d	$a3, $a2, -8
+	move	$a4, $zero
 
 	/* Skip aligned checksumming if data is too short */
-	bgtu	a1, a3, post_aligned
+	bgtu	$a1, $a3, post_aligned
 
-	/* Checksum 16-bit words until we reach xlen-bit alignment (or
-	 * one byte past xlen-bit alignment).
+	/* Checksum 16-bit words until we reach 64-bit alignment (or
+	 * one byte past 64-bit alignment).
 	 */
-	j	2f
-1:	lhu	a5, (a1)
-	addi	a1, a1, 2
-	add	a4, a4, a5
-2:	andi	a5, a1, ( ( ( __riscv_xlen / 8 ) - 1 ) & ~1 )
-	bnez	a5, 1b
+	b	2f
+1:	ld.hu	$a5, $a1, 0
+	addi.d	$a1, $a1, 2
+	add.d	$a4, $a4, $a5
+2:	andi	$a5, $a1, ( ( 8 - 1 ) & ~1 )
+	bnez	$a5, 1b
 
-	/* Checksum aligned xlen-bit words */
-	j	2f
-1:	LOADN	a5, (a1)
-	addi	a1, a1, ( __riscv_xlen / 8 )
-	add	a0, a0, a5
-	sltu	a5, a0, a5
-	add	a4, a4, a5
-2:	bleu	a1, a3, 1b
+	/* Checksum aligned 64-bit words */
+	b	2f
+1:	ld.d	$a5, $a1, 0
+	addi.d	$a1, $a1, 8
+	add.d	$a0, $a0, $a5
+	sltu	$a5, $a0, $a5
+	add.d	$a4, $a4, $a5
+2:	bleu	$a1, $a3, 1b
 
 post_aligned:
 	/* Checksum remaining 16-bit words */
-	addi	a3, a2, -2
-	j	2f
-1:	lhu	a5, (a1)
-	addi	a1, a1, 2
-	add	a4, a4, a5
-2:	bleu	a1, a3, 1b
+	addi.d	$a3, $a2, -2
+	b	2f
+1:	ld.hu	$a5, $a1, 0
+	addi.d	$a1, $a1, 2
+	add.d	$a4, $a4, $a5
+2:	bleu	$a1, $a3, 1b
 
 	/* Checksum final byte if present */
-	beq	a1, a2, 1f
-	lbu	a5, (a1)
-	add	a4, a4, a5
+	beq	$a1, $a2, 1f
+	ld.bu	$a5, $a1, 0
+	add.d	$a4, $a4, $a5
 1:
-	/* Fold down to xlen bits */
-	add	a0, a0, a4
-	sltu	a4, a0, a4
-	add	a0, a0, a4
+	/* Fold down to 64 bits */
+	add.d	$a0, $a0, $a4
+	sltu	$a4, $a0, $a4
+	add.d	$a0, $a0, $a4
 
-	/* Fold down to (high) xlen/2 bits */
-	slli	a4, a0, ( __riscv_xlen / 2 )
-	add	a0, a0, a4
-	sltu	a4, a0, a4
-	slli	a4, a4, ( __riscv_xlen / 2 )
-	add	a0, a0, a4
+	/* Fold down to (high) 32 bits */
+	slli.d	$a4, $a0, 32
+	add.d	$a0, $a0, $a4
+	sltu	$a4, $a0, $a4
+	slli.d	$a4, $a4, 32
+	add.d	$a0, $a0, $a4
 
-#if __riscv_xlen >= 64
-	/* Fold down to (high) xlen/4 bits (if xlen >= 64) */
-	srli	a4, a0, ( __riscv_xlen / 2 )
-	slli	a4, a4, ( __riscv_xlen * 3 / 4 )
-	add	a0, a0, a4
-	sltu	a4, a0, a4
-	slli	a4, a4, ( __riscv_xlen * 3 / 4 )
-	add	a0, a0, a4
-#endif
+	/* Fold down to (high) 16 bits */
+	srli.d	$a4, $a0, 32
+	slli.d	$a4, $a4, 48
+	add.d	$a0, $a0, $a4
+	sltu	$a4, $a0, $a4
+	slli.d	$a4, $a4, 48
+	add.d	$a0, $a0, $a4
 
 	/* Negate, move to low bits, and return */
-	not	a0, a0
-	srli	a0, a0, ( __riscv_xlen - 16 )
+	nor	$a0, $a0, $zero
+	srli.d	$a0, $a0, 48
 	ret
 	.size	tcpip_continue_chksum, . - tcpip_continue_chksum
