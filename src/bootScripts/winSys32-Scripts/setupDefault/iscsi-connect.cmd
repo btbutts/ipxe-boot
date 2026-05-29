@@ -38,7 +38,7 @@ if errorlevel 1 (
     ping -n 3 127.0.0.1 >nul 2>&1
     goto NetworkWait
 )
-echo   Network link verified! Target portal is reachable after !retries! attempt(s).
+echo   Network link verified^! Target portal is reachable after !retries! attempt(s).
 echo [iscsi] Portal reachable after !retries! attempt(s). >> %ISCSILOG%
 echo.
 

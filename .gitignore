@@ -4,3 +4,6 @@ log/
 # Vim swap files
 *.swp
 *.swo
+
+# Ignore Claude
+CLAUDE.md

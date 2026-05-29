@@ -2,9 +2,9 @@
 
 REM ============================================================
 REM  presetup.cmd
-REM  Called by winpeshl.exe (via winpeshl.ini) before setup.exe.
-REM  startnet.cmd calls wpeinit explicitly — with a custom
-REM  winpeshl.ini, winpeshl.exe does NOT call wpeinit automatically.
+REM  Called by winpeshl.exe (via winpeshl.ini) to set up iSCSI before
+REM  the installer launches. startnet.cmd calls wpeinit explicitly —
+REM  with a custom winpeshl.ini, winpeshl.exe does NOT call wpeinit.
 REM ============================================================
 
 set _D=%date%
@@ -17,5 +17,5 @@ echo [presetup] Running iSCSI pre-setup...
 echo [presetup] Calling startnet.cmd >> %PRELOG%
 call %SYSTEMDRIVE%\Windows\System32\startnet.cmd
 echo [presetup] %date% %time% - startnet.cmd returned, errorlevel=%errorlevel% >> %PRELOG%
-echo [presetup] iSCSI pre-setup complete. setup.exe will be launched by winpeshl.exe.
+echo [presetup] iSCSI pre-setup complete. Windows installation will be launched by winpeshl.exe.
 echo [presetup] Done >> %PRELOG%

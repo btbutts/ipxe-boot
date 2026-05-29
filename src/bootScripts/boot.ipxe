@@ -12,9 +12,10 @@ set qnap-base ${178:string}
 :menu
 menu iPXE Boot Menu - LVR Gaming PC
 item --gap -- ------------------------------
-item direct    1. Network Boot Windows 11
-item install   2. Boot Windows 11 Installer
-item shell     3. iPXE Shell (Debug)
+item direct        1. Network Boot Windows 11
+item install       2. Install Windows 11 via Default setup.exe
+item installManual 3. Install Windows 11 via DISM + BCD Script
+item shell         4. iPXE Shell (Debug)
 item --gap -- ------------------------------
 item reboot    R. Reboot System
 choose --default direct --timeout 30000 bootOption || goto cancelled
@@ -43,6 +44,25 @@ goto menu
 :do_install
 echo
 echo Launching Windows 11 Installer...
+chain ${qnap-base}/iscsiChapCredential.ipxe || shell
+goto menu
+
+:installManual
+echo ========================================
+echo Install Windows 11 via DISM + BCD Script
+echo Using base URL: ${qnap-base}
+echo ========================================
+echo
+echo Press any key to CANCEL...
+prompt --timeout 3000 || goto do_install_manual
+
+echo
+echo Installation cancelled by the user!
+goto menu
+
+:do_install_manual
+echo
+echo Launching DISM installer script...
 chain ${qnap-base}/iscsiChapCredential.ipxe || shell
 goto menu
 

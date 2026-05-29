@@ -2,9 +2,9 @@
 
 REM ============================================================
 REM  startnet.cmd
-REM  Called by presetup.cmd. wpeinit.exe has already run
-REM  (winpeshl.exe calls it before any LaunchApps entry),
-REM  so do NOT call wpeinit again here.
+REM  Called by presetup.cmd. wpeinit is called explicitly in Step 0
+REM  below — with a custom winpeshl.ini, winpeshl.exe does NOT call
+REM  wpeinit automatically.
 REM
 REM  IMPORTANT: Do NOT use the pipe operator (|) anywhere in
 REM  this file. In WinPE batch files, any pipe causes cmd.exe
@@ -27,8 +27,11 @@ echo [startnet] Calling wpeinit (PnP + DHCP)... >> %NETLOG%
 wpeinit
 echo [startnet] wpeinit done (exit code: %errorlevel%) >> %NETLOG%
 
-REM Ensure System32 is first in PATH so all commands are found
-SET PATH=%SYSTEMDRIVE%\Windows\System32;%PATH%;%SYSTEMDRIVE%\Windows\System32\OpenSSH
+REM Append OpenSSH to PATH for this process, then write to registry so
+REM independently-launched processes (e.g. Ctrl+F10 debug shell) inherit it.
+SET PATH=%PATH%;%SYSTEMDRIVE%\Windows\System32\OpenSSH
+reg add "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Environment" /v Path /t REG_EXPAND_SZ /d "%PATH%" /f >nul 2>&1
+echo [startnet] System PATH updated in registry >> %NETLOG%
 
 REM ── Step 1: SAN policy ──────────────────────────────────────
 REM Set BEFORE iSCSI connects so the disk auto-comes-online
