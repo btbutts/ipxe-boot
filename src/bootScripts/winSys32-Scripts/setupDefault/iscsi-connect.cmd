@@ -22,23 +22,28 @@ echo.
 
 echo [1/5] Waiting for WinPE Network Configuration to settle...
 echo [iscsi] Step 1: Waiting for target portal %ISCSI_PORTAL%... >> %ISCSILOG%
+<nul set /p "=  Waiting for portal %ISCSI_PORTAL%"
 set /a retries=0
 :NetworkWait
 ping -n 1 %ISCSI_PORTAL% >nul 2>&1
-if errorlevel 1 (
-    set /a retries+=1
-    if !retries! geq 60 (
-        echo   ERROR: Target portal unreachable after 120s. Aborting iSCSI setup.
-        echo [iscsi] ERROR: Portal unreachable after 60 attempts ^(120s^). Aborting. >> %ISCSILOG%
-        echo [iscsi] %date% %time% - Exiting with code 1 >> %ISCSILOG%
-        exit /b 1
-    )
-    echo   ..Target Portal not reachable yet ^(attempt !retries!/60^). Retrying in 2 seconds...
-    echo [iscsi] Portal not reachable, attempt !retries!/60 >> %ISCSILOG%
-    ping -n 3 127.0.0.1 >nul 2>&1
-    goto NetworkWait
-)
-echo   Network link verified^! Target portal is reachable after !retries! attempt(s).
+if not errorlevel 1 goto NetworkReady
+set /a retries+=1
+if !retries! geq 60 goto NetworkTimeout
+<nul set /p "= ."
+echo [iscsi] Portal not reachable, attempt !retries!/60 >> %ISCSILOG%
+ping -n 3 127.0.0.1 >nul 2>&1
+goto NetworkWait
+
+:NetworkTimeout
+echo.
+echo   ERROR: Target portal unreachable after 120s. Aborting iSCSI setup.
+echo [iscsi] ERROR: Portal unreachable after 60 attempts ^(120s^). Aborting. >> %ISCSILOG%
+echo [iscsi] %date% %time% - Exiting with code 1 >> %ISCSILOG%
+exit /b 1
+
+:NetworkReady
+echo.
+echo   Network link verified^! Target portal is reachable after !retries! attempt^(s^).
 echo [iscsi] Portal reachable after !retries! attempt(s). >> %ISCSILOG%
 echo.
 

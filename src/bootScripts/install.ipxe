@@ -2,7 +2,7 @@
 
 dhcp
 
-set qnap-base ${178:string}
+set http-server-dhcp178 ${178:string}
 
 echo ========================================
 echo Loading Windows 11 (WinPE) Installer...
@@ -11,7 +11,7 @@ echo ========================================
 echo
 
 # ===== iSCSI Settings =====
-set initiator-iqn iqn.2010-04.org.ipxe:${net0/mac:hexhyp}-lvrgamingpc
+set initiator-iqn iqn.2010-04.org.ipxe:${net0/mac:hexhyp}-%%INITIATOR_SYSNAME%%
 # Credentials set by iscsiChapCredential.ipxe before this script is chained to
 # ==========================
 
@@ -21,20 +21,20 @@ echo ============================================
 echo 
 
 # Hook iSCSI LUN
-sanhook iscsi:${next-server}:::0:iqn.2004-04.us.homeenterprises:qnapts-864eu:win-lvrgamingpc || goto error
+sanhook iscsi:${next-server}:::0:%%ISCSI_IQN%% || goto error
 
 echo iSCSI LUN hooked successfully. Booting WinPE...
 
 # Load WinPE
-kernel ${qnap-base}/wimboot
-initrd ${qnap-base}/win11-install/boot/bcd BCD
-initrd ${qnap-base}/win11-install/boot/boot.sdi boot.sdi
-initrd ${qnap-base}/System32-Scripts/setupDefault/winpeshl.ini winpeshl.ini
-initrd ${qnap-base}/System32-Scripts/presetup.cmd presetup.cmd
-initrd ${qnap-base}/System32-Scripts/startnet.cmd startnet.cmd
-initrd ${qnap-base}/System32-Scripts/iscsi-creds.cmd iscsi-creds.cmd
-initrd ${qnap-base}/System32-Scripts/setupDefault/iscsi-connect.cmd iscsi-connect.cmd
-initrd ${qnap-base}/win11-install/sources/boot.wim boot.wim
+kernel ${http-server-dhcp178}/wimboot
+initrd ${http-server-dhcp178}/win11-install/boot/bcd BCD
+initrd ${http-server-dhcp178}/win11-install/boot/boot.sdi boot.sdi
+initrd ${http-server-dhcp178}/System32-Scripts/setupDefault/winpeshl.ini winpeshl.ini
+initrd ${http-server-dhcp178}/System32-Scripts/presetup.cmd presetup.cmd
+initrd ${http-server-dhcp178}/System32-Scripts/startnet.cmd startnet.cmd
+initrd ${http-server-dhcp178}/System32-Scripts/iscsi-creds.cmd iscsi-creds.cmd
+initrd ${http-server-dhcp178}/System32-Scripts/setupDefault/iscsi-connect.cmd iscsi-connect.cmd
+initrd ${http-server-dhcp178}/win11-install/sources/boot.wim boot.wim
 
 boot
 

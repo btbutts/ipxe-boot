@@ -56,7 +56,7 @@ chain https://qnap01-mgmt.homeenterprises.us:4431/install.ipxe || shell
 goto menu
 
 :direct
-sanboot iscsi:${net0/ip}:::0:iqn.2004-04.us.homeenterprises:qnapts-864eu:win-lvrgamingpc || shell
+sanboot iscsi:${net0/ip}:::0:%%ISCSI_IQN%% || shell
 goto menu
 
 :shell

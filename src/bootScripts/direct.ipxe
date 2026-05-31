@@ -7,7 +7,7 @@ echo
 
 # Credentials already set by iscsiChapCredential.ipxe
 
-sanboot iscsi:${next-server}:::0:iqn.2004-04.us.homeenterprises:qnapts-864eu:win-lvrgamingpc || goto error
+sanboot iscsi:${next-server}:::0:%%ISCSI_IQN%% || goto error
 
 :error
 echo Error: iSCSI sanboot failed! (Code: ${errno})

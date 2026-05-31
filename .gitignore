@@ -5,5 +5,12 @@ log/
 *.swp
 *.swo
 
+# Ignore make files
+src/bin/**.list
+
 # Ignore Claude
 CLAUDE.md
+
+# Ignore local deployment artifacts
+efiDeployScripts/credential.temp.env
+efiDeployScripts/.deployignore

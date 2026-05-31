@@ -47,6 +47,7 @@ REM ── Step 2: Wait for IPv4 ───────────────�
 REM Write ipconfig to a temp file and use findstr on it.
 REM Avoids the pipe operator entirely.
 echo [startnet] Waiting for network (IPv4)... >> %NETLOG%
+<nul set /p "=[startnet] Waiting for IPv4"
 set /a net_retries=0
 :WAIT_NET
 set /a net_retries+=1
@@ -55,15 +56,17 @@ findstr /i "IPv4" %SYSTEMDRIVE%\__net_tmp.txt >nul 2>&1
 if not errorlevel 1 goto NET_READY
 del %SYSTEMDRIVE%\__net_tmp.txt >nul 2>&1
 if %net_retries% geq 30 goto NET_TIMEOUT
-echo [startnet] Waiting for network... %net_retries%/30
+<nul set /p "= ."
 ping -n 3 127.0.0.1 >nul 2>&1
 goto WAIT_NET
 
 :NET_TIMEOUT
+echo.
 echo [startnet] Network wait timed out, continuing anyway >> %NETLOG%
 goto CALL_ISCSI
 
 :NET_READY
+echo.
 del %SYSTEMDRIVE%\__net_tmp.txt >nul 2>&1
 echo [startnet] Network ready at retry %net_retries% >> %NETLOG%
 
