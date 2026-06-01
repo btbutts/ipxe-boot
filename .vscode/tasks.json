@@ -1,0 +1,175 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Auto-Start Terminal and Claude",
+      "dependsOn": ["terminal", "start-claude-when-ready"],
+      "runOptions": {
+        "runOn": "folderOpen",
+        "instanceLimit": 1
+      },
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "silent"
+      }
+    },
+    {
+      "label": "start-claude-when-ready",
+      "dependsOn": ["wait-for-workspace-ready", "claude-code"],
+      "dependsOrder": "sequence",
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "silent"
+      }
+    },
+    {
+      "label": "wait-for-workspace-ready",
+      "type": "shell",
+      "osx": {
+        "command": [
+          "ready=0;",
+          "for i in {1..45}; do",
+          "if [ -d \"${workspaceFolder}\" ] && command -v claude >/dev/null 2>&1; then",
+          "ready=1;",
+          "break;",
+          "fi;",
+          "sleep 1;",
+          "done;",
+          "if [ \"$ready\" -eq 1 ]; then",
+          ":;",
+          "else",
+          "if [ ! -d \"${workspaceFolder}\" ]; then",
+          "echo 'Workspace folder not fully ready after timeout.';",
+          "fi;",
+          "if ! command -v claude >/dev/null 2>&1; then",
+          "echo 'claude binary not found after timeout.';",
+          "fi;",
+          "echo 'Continuing startup.';",
+          "fi;",
+          "sleep 8"
+        ],
+        "options": {
+          "shell": {
+            "executable": "/bin/zsh",
+            "args": ["-l", "-c"]
+          }
+        }
+      },
+      "linux": {
+        "command": [
+          "ready=0;",
+          "for i in {1..45}; do",
+          "if [ -d \"${workspaceFolder}\" ] && command -v claude >/dev/null 2>&1; then",
+          "ready=1;",
+          "break;",
+          "fi;",
+          "sleep 1;",
+          "done;",
+          "if [ \"$ready\" -eq 1 ]; then",
+          ":;",
+          "else",
+          "if [ ! -d \"${workspaceFolder}\" ]; then",
+          "echo 'Workspace folder not fully ready after timeout.';",
+          "fi;",
+          "if ! command -v claude >/dev/null 2>&1; then",
+          "echo 'claude binary not found after timeout.';",
+          "fi;",
+          "echo 'Continuing startup.';",
+          "fi;",
+          "sleep 8"
+        ],
+        "options": {
+          "shell": {
+            "executable": "/bin/bash",
+            "args": ["-l", "-c"]
+          }
+        }
+      },
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "silent",
+        "panel": "dedicated",
+        "focus": false,
+        "close": true
+      }
+    },
+    {
+      "label": "terminal",
+      "type": "shell",
+      "osx": {
+        "command": ["exec /bin/zsh -l"],
+        "options": {
+          "shell": {
+            "executable": "/bin/zsh",
+            "args": ["-l", "-c"]
+          }
+        }
+      },
+      "linux": {
+        "command": ["exec /bin/bash -l"],
+        "options": {
+          "shell": {
+            "executable": "/bin/bash",
+            "args": ["-l", "-c"]
+          }
+        }
+      },
+      "isBackground": true,
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "new",
+        "focus": true
+      },
+      "icon": {
+        "id": "terminal",
+        "color": "terminal.ansiBlue"
+      }
+    },
+    {
+      "label": "claude-code",
+      "type": "shell",
+      "osx": {
+        "command": [
+          "command -v claude >/dev/null 2>&1",
+          "&& claude ||",
+          "{ echo 'Claude Code is not installed. Skipping task.';",
+          "echo 'Press any key to quit this terminal...';",
+          "exit; }"
+        ],
+        "options": {
+          "shell": {
+            "executable": "/bin/zsh",
+            "args": ["-l", "-c"]
+          }
+        }
+      },
+      "linux": {
+        "command": [
+          "command -v claude >/dev/null 2>&1",
+          "&& claude ||",
+          "{ echo 'Claude Code is not installed. Skipping task.';",
+          "echo 'Press any key to quit this terminal...';",
+          "exit; }"
+        ],
+        "options": {
+          "shell": {
+            "executable": "/bin/bash",
+            "args": ["-l", "-c"]
+          }
+        }
+      },
+      "isBackground": true,
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "new",
+        "focus": true
+      },
+      "icon": {
+        "id": "claude",
+        "color": "terminal.ansiRed"
+      }
+    }
+  ]
+}
